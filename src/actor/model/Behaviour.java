@@ -6,5 +6,6 @@ package actor.model;
  * @project ActorProg1
  */
 public interface Behaviour<Message> {
-    public Behaviour run(Actor self, Object message) throws Throwable;
+    boolean onReceive(Actor<Message> self, Message message) throws Exception;
+    void onException(Actor<Message> self, Exception exc);
 }

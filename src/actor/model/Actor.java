@@ -1,6 +1,5 @@
 package actor.model;
 
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -15,77 +14,83 @@ public class Actor<Message> implements Runnable {
     private boolean isHelperCreated = false;
     boolean isMaster = true;
 
-    private short maxMailboxSize = 1000;
-    private int actorId;
-
-    private volatile Thread currentThread = null;
+    private short MAX_MAILBOX_SIZE = 1000;
+    private String idActor;
 
     private volatile BlockingQueue<Message> mailbox;
-    private final Behavior<Message> behavior;
+    private final Behaviour<Message> behavior;
 
-    public Actor(int actorId, Behavior<Message> behavior) {
+    public Actor(String idActor, Behaviour<Message> behavior) {
         this.behavior = behavior;
         this.mailbox = new LinkedBlockingQueue<>();
-        this.actorId = actorId;
+        this.idActor = idActor;
         isThreadAlive = true;
         new Thread(this).start();
     }
 
-    public String getName() { return this.name; }
-    Behavior<Message> getBehavior() { return this.behavior; }
-
-    void setMaxMailboxSize (short maxMailboxSize) { this.maxMailboxSize = maxMailboxSize; }
-
-    public void send(Object message) {
-        if (message == null) throw new NullPointerException("Can't send null message.");
-
-        BlockingQueue<Message> mailbox = this.mailbox;
-        if (mailbox == null) return;
-
-        if (!mailbox.offer(message)) {
-            die(new DeadException());
-            return;
-        }
+    public String getName() {
+        return this.idActor;
     }
 
-    public void die(Throwable reason) {
+    Behaviour<Message> getBehavior() {
+        return this.behavior;
+    }
+
+    void setMaxMailboxSize(short MAX_MAILBOX_SIZE) {
+        this.MAX_MAILBOX_SIZE = MAX_MAILBOX_SIZE;
+    }
+
+    public void die() {
         isThreadAlive = false;
         this.mailbox.clear();
         try {
-            interruptCurrentThread(self);
+            Manager.actorDie(this.idActor, this.isMaster);// ЕСЛИ МАСТЕР ТО ВОСКРЕСНЕТ
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public Object takeMessage() throws InterruptedException {
-        if (Thread.currentThread() != this.currentThread)
-            throw new RuntimeException("error!");
+    public boolean takeMessage(Message message) throws DeadException {
+        if (!isThreadAlive) {
+            throw new DeadException();
+        }
 
-        BlockingQueue<Message> mailbox = this.mailbox;
-        if (mailbox == null) return null;
-        return mailbox.take();
+        short currentMailboxSize = (short) mailbox.size();
+
+        if (!isHelperCreated && (currentMailboxSize > MAX_MAILBOX_SIZE)) {
+            if (Manager.createHelper(this.idActor, this.behavior, this.MAX_MAILBOX_SIZE))
+                isHelperCreated = true;
+        }
+
+        if (isHelperCreated && currentMailboxSize > MAX_MAILBOX_SIZE) {
+            if (!Manager.sendMessage(this.idActor + Manager.HELPER_NAME, message)) // мастер пытается кинуть сообщение своему помощнику
+                isHelperCreated = false;
+        }
+
+        return mailbox.offer(message);
     }
 
     @Override
     public void run() {
-        Object message;
-        Behaviour behaviour;
-
-        synchronized (this) {
-            if (isThreadAlive) return;
-
-            message = mailbox.poll();
-            if (message == null) return;
-
-            isThreadAlive = true;
-            currentThread = Thread.currentThread();
+        try {
+            while (behavior.onReceive(this, mailbox.take()) && isThreadAlive) {
+                if (!isMaster && mailbox.size() == 0) {
+                    die();
+                    break;
+                }
+            }
+        } catch (InterruptedException exception) {
+            behavior.onException(this, exception);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
     }
 
     private void interruptCurrentThread(Thread currentThread) {
         if (currentThread == null) return;
-        synchronized (this) { currentThread.interrupt(); }
+
+        synchronized (this) {
+            currentThread.interrupt();
+        }
     }
 }
