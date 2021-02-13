@@ -37,6 +37,7 @@ public class Manager {
     }
 
     public static boolean sendMessage(String idReceiver, Object message) throws DeadException {
+        //sleepActor();
         Actor<Object> receiver = actorPool.get(idReceiver);
 
         if (receiver == null) {
@@ -53,6 +54,7 @@ public class Manager {
             return false;
         }
 
+        //sleepActor();
         String idHelper = idMasterActor + HELPER_NAME;
         Actor actor = new Actor(idHelper, masterBehaviour);
 
@@ -61,5 +63,16 @@ public class Manager {
 
         actorPool.put(idHelper, actor);
         return true;
+    }
+
+    public static void sleepActor(){
+        try {
+            short max = 500;
+            short min = 50;
+            int range = max - min + 1;
+            Thread.sleep((long)(Math.random() * range) + min);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

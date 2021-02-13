@@ -1,5 +1,7 @@
 package work;
 
+import actor.model.DeadException;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +24,7 @@ public class SSEClient {
     }
 
     public static interface EventListener {
-        public void message(SSEEvent event);
+        public void message(SSEEvent event) throws DeadException;
     }
 
     public SSEClient(URL destination, EventListener listener) {
@@ -37,7 +39,7 @@ public class SSEClient {
         );
     }
 
-    void readEvent(InputStream in) throws IOException {
+    void readEvent(InputStream in) throws IOException, DeadException {
         String eventType = "message";
         StringBuilder payLoad = new StringBuilder();
 
