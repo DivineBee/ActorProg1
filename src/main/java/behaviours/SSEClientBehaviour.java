@@ -4,15 +4,11 @@ import actor.model.Actor;
 import actor.model.Behaviour;
 import actor.model.DeadException;
 import actor.model.Manager;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import work.SSEClient;
-import work.Tweet;
 
 import java.io.EOFException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
 
 /**
  * @author Beatrice V.
@@ -28,11 +24,19 @@ public class SSEClientBehaviour implements Behaviour<String> {
                 int count = 0;
                 public void message(SSEClient.SSEEvent evt) throws DeadException {
                     String data = evt.data;
+
+                    if(data.contains("{\"message\": panic}")) {
+                        System.out.println("Actor died x_x");
+                        self.die();
+                    }
                     //System.out.println(("Client " + self.getName() + data));
+                    JSONBehaviour jsonBehaviour = new JSONBehaviour();
+                    Manager.createActor("jsonHandler", jsonBehaviour);
                     Manager.sendMessage("jsonHandler", data);
                 }
             });
             client.connect();
+            self.sleepActor();
         } catch (EOFException | MalformedURLException e) {
             System.out.println("the stream ended!");
         } catch (Exception e) {

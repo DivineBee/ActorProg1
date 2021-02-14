@@ -93,4 +93,15 @@ public class Actor<Message> implements Runnable {
             currentThread.interrupt();
         }
     }
+
+    public void sleepActor(){
+        try {
+            short max = 500;
+            short min = 50;
+            int range = max - min + 1;
+            Thread.sleep((long)(Math.random() * range) + min);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

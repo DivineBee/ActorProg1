@@ -17,13 +17,10 @@ public class Main {
 
         Manager.createActor("firstSSEClient", sseClientBehaviour);
         Manager.createActor("secondSSEClient", sseClientBehaviour);
-        Manager.createActor("jsonHandler", sseClientBehaviour);
-
-        Manager.createActor("jsonHandler", jsonBehaviour);
 
         Manager.sendMessage("firstSSEClient", "http://localhost:4000/tweets/1");
         Manager.sendMessage("secondSSEClient", "http://localhost:4000/tweets/2");
 
-        Manager.sendMessage("jsonHandler", "http://localhost:4000/tweets/1");
+       // Manager.sendMessage("jsonHandler", "http://localhost:4000/tweets/1");
     }
 }
