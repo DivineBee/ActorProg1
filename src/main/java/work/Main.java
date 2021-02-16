@@ -1,8 +1,9 @@
 package work;
 
+import actor.model.ActorFactory;
 import actor.model.DeadException;
-import actor.model.Manager;
-import behaviours.JSONBehaviour;
+import actor.model.Supervisor;
+import behaviours.EmotionHandler;
 import behaviours.SSEClientBehaviour;
 
 /**
@@ -13,14 +14,14 @@ import behaviours.SSEClientBehaviour;
 public class Main {
     public static void main(String[] args) throws DeadException {
         SSEClientBehaviour sseClientBehaviour = new SSEClientBehaviour();
-        JSONBehaviour jsonBehaviour = new JSONBehaviour();
+        EmotionHandler em = new EmotionHandler();
 
-        Manager.createActor("firstSSEClient", sseClientBehaviour);
-        Manager.createActor("secondSSEClient", sseClientBehaviour);
+        ActorFactory.createActor("firstSSEClient", sseClientBehaviour);
+        ActorFactory.createActor("secondSSEClient", sseClientBehaviour);
+        ActorFactory.createActor("em", em);
 
-        Manager.sendMessage("firstSSEClient", "http://localhost:4000/tweets/1");
-        Manager.sendMessage("secondSSEClient", "http://localhost:4000/tweets/2");
-
-       // Manager.sendMessage("jsonHandler", "http://localhost:4000/tweets/1");
+        Supervisor.sendMessage("firstSSEClient", "http://localhost:4000/tweets/1");
+        Supervisor.sendMessage("secondSSEClient", "http://localhost:4000/tweets/2");
+        Supervisor.sendMessage("em", "B:\\PROGRAMMING\\PROJECTS\\ActorProg1\\src\\main\\resources\\emotions.txt");
     }
 }

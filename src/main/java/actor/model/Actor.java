@@ -44,7 +44,7 @@ public class Actor<Message> implements Runnable {
         isThreadAlive = false;
         this.mailbox.clear();
         try {
-            Manager.actorDie(this.idActor, this.isMaster);// ЕСЛИ МАСТЕР ТО ВОСКРЕСНЕТ
+            ActorScale.actorDie(this.idActor, this.isMaster);// ЕСЛИ МАСТЕР ТО ВОСКРЕСНЕТ
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -58,12 +58,12 @@ public class Actor<Message> implements Runnable {
         short currentMailboxSize = (short) mailbox.size();
 
         if (!isHelperCreated && (currentMailboxSize > MAX_MAILBOX_SIZE)) {
-            if (Manager.createHelper(this.idActor, this.behavior, this.MAX_MAILBOX_SIZE))
+            if (ActorScale.createHelper(this.idActor, this.behavior, this.MAX_MAILBOX_SIZE))
                 isHelperCreated = true;
         }
 
         if (isHelperCreated && currentMailboxSize > MAX_MAILBOX_SIZE) {
-            if (!Manager.sendMessage(this.idActor + Manager.HELPER_NAME, message)) // мастер пытается кинуть сообщение своему помощнику
+            if (!Supervisor.sendMessage(this.idActor + ActorScale.HELPER_NAME, message)) // мастер пытается кинуть сообщение своему помощнику
                 isHelperCreated = false;
         }
 
@@ -86,20 +86,12 @@ public class Actor<Message> implements Runnable {
         }
     }
 
-    private void interruptCurrentThread(Thread currentThread) {
-        if (currentThread == null) return;
-
-        synchronized (this) {
-            currentThread.interrupt();
-        }
-    }
-
-    public void sleepActor(){
+    public static void sleepActor() {
         try {
             short max = 500;
             short min = 50;
             int range = max - min + 1;
-            Thread.sleep((long)(Math.random() * range) + min);
+            Thread.sleep((long) (Math.random() * range) + min);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

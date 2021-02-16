@@ -5,12 +5,6 @@ import actor.model.Actor;
 import actor.model.Behaviour;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import work.Tweet;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Beatrice V.
@@ -18,43 +12,29 @@ import java.util.Map;
  * @project ActorProg1
  */
 public class JSONBehaviour implements Behaviour<String> {
+    public static String tweet = null;
 
     @Override
     public boolean onReceive(Actor<String> self, String data) throws Exception {
-        /*if (data==null || data.isEmpty()){
-            return false;
-        }*/
-
         ObjectMapper jsonMapper = new ObjectMapper();
-        //System.out.println("data" + data);
-        if(data.contains("{\"message\": panic}")) {
+
+        if (data.contains("{\"message\": panic}")) {
             System.out.println("Actor died x_x");
             self.die();
             return false;
         }
 
-        /*try {
-            if (!data.contains("localhost")) {
-                Map map = jsonMapper.readValue(data.substring(12), Map.class);
-                //System.out.println("map" + map);
-                System.out.println("------" + map.get("tweet"));
-                System.out.println("");
+        if (!data.contains("localhost") && data != null && !data.isEmpty()) {
+            JsonNode jsonNode = jsonMapper.readValue(data, JsonNode.class);
+            System.out.println("DATA--- " + jsonNode);
 
-            }
-        }catch (StringIndexOutOfBoundsException e){
-            System.err.println("No message");
-        }*/
-        if (!data.contains("localhost")) {
-            try {
-                JsonNode jsonNode = jsonMapper.readValue(data, JsonNode.class);
-                System.out.println("node " + jsonNode);
+            JsonNode tweetNode = jsonNode.get("message").get("tweet").get("text");
+            tweet = tweetNode.asText();
 
-                JsonNode tweetNode = jsonNode.get("message").get("tweet").get("text");
-                String tweet = tweetNode.asText();
-                System.out.println("tweet = " + tweet);
-            } catch (MismatchedInputException e){
-                System.err.println("error" + data);
-            }
+            JsonNode userNode = jsonNode.get("message").get("tweet").get("user").get("screen_name");
+            String user = userNode.asText();
+
+            System.out.println("USER: " + user + " | " + "TWEET: " + tweet + " |\n");
         }
         return true;
     }

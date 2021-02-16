@@ -1,9 +1,6 @@
 package behaviours;
 
-import actor.model.Actor;
-import actor.model.Behaviour;
-import actor.model.DeadException;
-import actor.model.Manager;
+import actor.model.*;
 import work.SSEClient;
 
 import java.io.EOFException;
@@ -29,10 +26,11 @@ public class SSEClientBehaviour implements Behaviour<String> {
                         System.out.println("Actor died x_x");
                         self.die();
                     }
-                    //System.out.println(("Client " + self.getName() + data));
-                    JSONBehaviour jsonBehaviour = new JSONBehaviour();
-                    Manager.createActor("jsonHandler", jsonBehaviour);
-                    Manager.sendMessage("jsonHandler", data);
+                    if(data != null && !data.isEmpty()){
+                        JSONBehaviour jsonBehaviour = new JSONBehaviour();
+                        ActorFactory.createActor("jsonHandler", jsonBehaviour);
+                        Supervisor.sendMessage("jsonHandler", data);
+                    }
                 }
             });
             client.connect();
