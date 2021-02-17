@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class JSONBehaviour implements Behaviour<String> {
     public static String tweet = null;
+    public static String user = null;
 
     @Override
     public boolean onReceive(Actor<String> self, String data) throws Exception {
@@ -26,15 +27,15 @@ public class JSONBehaviour implements Behaviour<String> {
 
         if (!data.contains("localhost") && data != null && !data.isEmpty()) {
             JsonNode jsonNode = jsonMapper.readValue(data, JsonNode.class);
-            System.out.println("DATA--- " + jsonNode);
+           // System.out.println("DATA--- " + jsonNode);
 
             JsonNode tweetNode = jsonNode.get("message").get("tweet").get("text");
-            tweet = tweetNode.asText();
+            tweet = tweetNode.asText() + " ";
 
             JsonNode userNode = jsonNode.get("message").get("tweet").get("user").get("screen_name");
-            String user = userNode.asText();
+            user = userNode.asText();
 
-            System.out.println("USER: " + user + " | " + "TWEET: " + tweet + " |\n");
+            System.out.println("USER: " + user + " | " + "TWEET: " + tweet + " | " + "SCORE: " + EmotionHandler.getEmotionScore(tweet));
         }
         return true;
     }

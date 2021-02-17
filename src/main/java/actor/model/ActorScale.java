@@ -13,16 +13,6 @@ public class ActorScale {
     public static String HELPER_NAME = "helper";
     static final short MAX_AMOUNT_OF_ACTORS = 100;
 
-    public static void actorDie(String idActor, boolean isRespawn) {
-        if (isRespawn) {
-            Behaviour deathBehaviour = actorPool.get(idActor).getBehavior();
-            actorPool.remove(idActor);
-            createActor(idActor, deathBehaviour);
-        } else {
-            actorPool.remove(idActor);
-        }
-    }
-
     public static boolean createHelper(String idMasterActor, Behaviour masterBehaviour, short masterMaxMessages) {
         if (actorPool.size() > ActorScale.MAX_AMOUNT_OF_ACTORS) {
             return false;

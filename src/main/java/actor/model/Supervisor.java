@@ -1,6 +1,7 @@
 package actor.model;
 
 import static actor.model.ActorFactory.actorPool;
+import static actor.model.ActorFactory.createActor;
 
 /**
  * @author Beatrice V.
@@ -8,6 +9,17 @@ import static actor.model.ActorFactory.actorPool;
  * @project ActorProg1
  */
 public class Supervisor {
+
+    public static void actorDie(String idActor, boolean isRespawn) {
+        if (isRespawn) {
+            Behaviour deathBehaviour = actorPool.get(idActor).getBehavior();
+            actorPool.remove(idActor);
+            createActor(idActor, deathBehaviour);
+        } else {
+            actorPool.remove(idActor);
+        }
+    }
+
     public static boolean sendMessage(String idReceiver, Object message) throws DeadException {
         //sleepActor();
         Actor<Object> receiver = actorPool.get(idReceiver);

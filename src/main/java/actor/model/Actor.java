@@ -44,7 +44,7 @@ public class Actor<Message> implements Runnable {
         isThreadAlive = false;
         this.mailbox.clear();
         try {
-            ActorScale.actorDie(this.idActor, this.isMaster);// ЕСЛИ МАСТЕР ТО ВОСКРЕСНЕТ
+            Supervisor.actorDie(this.idActor, this.isMaster);// ЕСЛИ МАСТЕР ТО ВОСКРЕСНЕТ
         } catch (Exception e) {
             e.printStackTrace();
         }

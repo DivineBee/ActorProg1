@@ -11,39 +11,76 @@ import actor.model.Behaviour;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import static behaviours.JSONBehaviour.tweet;
+import static behaviours.JSONBehaviour.user;
 
 public class EmotionHandler implements Behaviour<String> {
     public static final HashMap<String, Integer> emotionsMap = new HashMap<String, Integer>();
 
-    public void getEmotionScore(HashMap<String, Integer> map) {
+    public static int getEmotionScore(String tweet) {
         //  emotion score
         int score = 0;
 
         // for every word/phrase from emotionMap do the next thing:
-        for (String emotionWord : map.keySet()) {
+        for (String emotionWord : emotionsMap.keySet()) {
             // if the word/phrase is contained inside the tweet:
             if (tweet.contains(emotionWord)) {
                 // total score = number of word appearances from emotionsMap * score number for that word
-                score += amountOfEmotionWordAppearancesInTweet(tweet, emotionWord) * map.get(emotionWord);
+                score += amountOfEmotionWordAppearancesInTweet(tweet, emotionWord) * emotionsMap.get(emotionWord);
             }
         }
-        System.out.println("SCORE " + score);
 
+        if(score==0){
+            System.out.println("\n" + user + ": IS NEUTRAL");
+        } else if (score > 0 && score < 3){
+            System.out.println("\n" + user + ": IS SLIGHTLY HAPPY");
+        } else if (score > 3 && score < 7) {
+            System.out.println("\n" + user + ": IS HAPPY");
+        } else if (score > 7) {
+            System.out.println("\n" + user + ": IS VERY HAPPY");
+        } else if (score < 0 && score > -3) {
+            System.out.println("\n" + user + ": IS SLIGHTLY SAD");
+        } else if (score < -3 && score > -7){
+            System.out.println("\n" + user + ": IS SAD");
+        } else if (score < -7) {
+            System.out.println("\n" + user + ": IS VERY SAD");
+        } else {
+            System.out.println("\n" + user + ": CAN'T IDENTIFY EMOTION");
+        }
+
+        return score;
     }
 
-    public int amountOfEmotionWordAppearancesInTweet(String tweet, String emotionWord) {
+    public static int amountOfEmotionWordAppearancesInTweet(String tweet, String emotionWord) {
+        String reviewableFragment = "";
+        int counter = 0;
 
-        String arrayOfTweets[] = tweet.split(" ");  // split the string by spaces and put in array
-        int count = 0;  // search for given word in array
-
-        for (int i = 0; i < arrayOfTweets.length; i++) {
-            // if match found increase count
-            if (emotionWord.equals(arrayOfTweets[i]))
-                count++;
+        for(int startIndex = 0; startIndex < tweet.length() - emotionWord.length(); startIndex++) {
+            reviewableFragment = tweet.substring(startIndex, startIndex + emotionWord.length());
+            if(reviewableFragment.equalsIgnoreCase(emotionWord)) {
+                counter++;
+            }
         }
-        return count;
+        return counter;
+
+        /*String[] tweetChunks = tweet.split(" ");
+
+        for (String chunk : tweetChunks) {
+            System.out.println("CHUNK -----" + chunk);
+            System.out.println("LENGTH" + tweetChunks.length);
+        }
+        if (tweetChunks.length > 1) {
+            return tweetChunks.length - 1;
+        }
+        return 0;*/
+        /*String regex = "\\s|[.,!?;]";
+
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(emotionWord);
+
+        boolean matchFound = matcher.find();*/
     }
 
     @Override

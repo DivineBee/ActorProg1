@@ -14,11 +14,11 @@ import behaviours.SSEClientBehaviour;
 public class Main {
     public static void main(String[] args) throws DeadException {
         SSEClientBehaviour sseClientBehaviour = new SSEClientBehaviour();
-        EmotionHandler em = new EmotionHandler();
+        EmotionHandler emotionHandler = new EmotionHandler();
 
         ActorFactory.createActor("firstSSEClient", sseClientBehaviour);
         ActorFactory.createActor("secondSSEClient", sseClientBehaviour);
-        ActorFactory.createActor("em", em);
+        ActorFactory.createActor("em", emotionHandler);
 
         Supervisor.sendMessage("firstSSEClient", "http://localhost:4000/tweets/1");
         Supervisor.sendMessage("secondSSEClient", "http://localhost:4000/tweets/2");
