@@ -10,6 +10,7 @@ import static actor.model.ActorFactory.createActor;
  */
 public class Supervisor {
 
+    // Removes dead actor from system and respawn if it's master actor
     public static void actorDie(String idActor, boolean isRespawn) {
         if (isRespawn) {
             Behaviour deathBehaviour = actorPool.get(idActor).getBehavior();
@@ -20,13 +21,14 @@ public class Supervisor {
         }
     }
 
+    // Try sending message to actor and check message to be received
     public static boolean sendMessage(String idReceiver, Object message) throws DeadException {
         //sleepActor();
         Actor<Object> receiver = actorPool.get(idReceiver);
 
         if (receiver == null) {
             System.err.println("Don't have this actor --> " + receiver);
-        } else if (!receiver.takeMessage(message)) { //если не может принять сообщение
+        } else if (!receiver.takeMessage(message)) { // if it can't receive the message
             System.err.println("Actor " + idReceiver + " can't receive message");
             return false;
         }

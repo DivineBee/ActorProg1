@@ -11,30 +11,32 @@ import actor.model.Behaviour;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static behaviours.JSONBehaviour.user;
 
 public class EmotionHandler implements Behaviour<String> {
+    // key-value pairs for emotions with their points
     public static final HashMap<String, Integer> emotionsMap = new HashMap<String, Integer>();
 
+    // method which calculates the score adding up occurrences of words in the tweet
+    // from the emotionsMap
     public static int getEmotionScore(String tweet) {
         //  emotion score
         int score = 0;
 
         // for every word/phrase from emotionMap do the next thing:
         for (String emotionWord : emotionsMap.keySet()) {
+            String lowerCaseTweet = tweet.toLowerCase();
             // if the word/phrase is contained inside the tweet:
-            if (tweet.contains(emotionWord)) {
+            if (lowerCaseTweet.contains(emotionWord)) {
                 // total score = number of word appearances from emotionsMap * score number for that word
                 score += amountOfEmotionWordAppearancesInTweet(tweet, emotionWord) * emotionsMap.get(emotionWord);
             }
         }
 
-        if(score==0){
+        if (score == 0) {
             System.out.println("\n" + user + ": IS NEUTRAL");
-        } else if (score > 0 && score < 3){
+        } else if (score > 0 && score < 3) {
             System.out.println("\n" + user + ": IS SLIGHTLY HAPPY");
         } else if (score > 3 && score < 7) {
             System.out.println("\n" + user + ": IS HAPPY");
@@ -42,7 +44,7 @@ public class EmotionHandler implements Behaviour<String> {
             System.out.println("\n" + user + ": IS VERY HAPPY");
         } else if (score < 0 && score > -3) {
             System.out.println("\n" + user + ": IS SLIGHTLY SAD");
-        } else if (score < -3 && score > -7){
+        } else if (score < -3 && score > -7) {
             System.out.println("\n" + user + ": IS SAD");
         } else if (score < -7) {
             System.out.println("\n" + user + ": IS VERY SAD");
@@ -53,48 +55,74 @@ public class EmotionHandler implements Behaviour<String> {
         return score;
     }
 
+
     public static int amountOfEmotionWordAppearancesInTweet(String tweet, String emotionWord) {
         String reviewableFragment = "";
         int counter = 0;
 
-        for(int startIndex = 0; startIndex < tweet.length() - emotionWord.length(); startIndex++) {
-            reviewableFragment = tweet.substring(startIndex, startIndex + emotionWord.length());
-            if(reviewableFragment.equalsIgnoreCase(emotionWord)) {
-                counter++;
+        for (int startIndex = 0; startIndex < tweet.length() - emotionWord.length(); startIndex++) {
+            int endingIndex = startIndex + emotionWord.length();
+            if (startIndex != 0 && endingIndex != tweet.length()){
+                if (verifyWordBounds(tweet.charAt(startIndex - 1), tweet.charAt(endingIndex))){
+                    reviewableFragment = tweet.substring(startIndex, endingIndex);
+                    System.out.println("HERE " + reviewableFragment + " | " + emotionWord);
+                    if (reviewableFragment.equalsIgnoreCase(emotionWord)) {
+                        counter++;
+                    }
+                }
+            } else if(endingIndex != tweet.length()-1){
+                if(verifyWordOneWayBound(tweet.charAt(endingIndex + 1))){
+                    reviewableFragment = tweet.substring(startIndex, endingIndex);
+                    if (reviewableFragment.equalsIgnoreCase(emotionWord)) {
+                        counter++;
+                    }
+                }
             }
         }
         return counter;
-
-        /*String[] tweetChunks = tweet.split(" ");
-
-        for (String chunk : tweetChunks) {
-            System.out.println("CHUNK -----" + chunk);
-            System.out.println("LENGTH" + tweetChunks.length);
-        }
-        if (tweetChunks.length > 1) {
-            return tweetChunks.length - 1;
-        }
-        return 0;*/
-        /*String regex = "\\s|[.,!?;]";
-
-        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(emotionWord);
-
-        boolean matchFound = matcher.find();*/
     }
 
+    public static boolean verifyWordBounds(char starting, char ending) {
+        if (starting == ' ' || starting == '.' || starting == ',' || starting == '!'
+                || starting == '?' || starting == ';' || starting == '#') {
+            if(ending == ' ' || ending == '.' || ending == ',' || ending == '!' || ending == '?' || ending == ';'){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean verifyWordOneWayBound(char bound) {
+        if (bound == ' ' || bound == '.' || bound == ',' || bound == '!' || bound == '?' || bound == ';') {
+            return true;
+        }
+        return false;
+    }
+
+
+    // Mapping of emotions to keys and their points as values.
+    // Here is taken into consideration that some emotions are composed from more
+    // than one word (e.g dont like)
     @Override
     public boolean onReceive(Actor<String> self, String s) throws Exception {
         String line;
         BufferedReader reader = new BufferedReader(new FileReader(s));
+        // while we have something to read
         while ((line = reader.readLine()) != null) {
+            // remove whitespaces from beginning and end
             line = line.trim();
+            // replace multiple whitespaces occurences with only one
             line = line.replaceAll("\\s+", " ");
+            // temporary array for words
             String[] parts = line.split(" ");
+            // if there are only 2 items then first is key and second value
+            // and attach them to map
             if (parts.length == 2) {
                 String key = parts[0];
                 Integer value = Integer.parseInt(parts[1]);
                 emotionsMap.put(key, value);
+                // if more than 2 items then concatenate all the items except last one
+                // and add whitespace back
             } else if (parts.length >= 3) {
                 String key = "";
                 for (int i = 0; i < parts.length - 1; i++) {

@@ -13,24 +13,28 @@ import java.net.URL;
  * @project ActorProg1
  */
 public class SSEClientBehaviour implements Behaviour<String> {
+
+    // method responsible for sse stream handling and passing to next actor for processing
     @Override
     public boolean onReceive(Actor<String> self, String urlPath) throws Exception {
         try {
+            // set url for the stream
             URL sseUrl = new URL(urlPath);
-            SSEClient client = new SSEClient(sseUrl, new SSEClient.EventListener() {
-                int count = 0;
-                public void message(SSEClient.SSEEvent evt) throws DeadException {
-                    String data = evt.data;
+            // create instance of client class
+            SSEClient client = new SSEClient(sseUrl, evt -> {
+                String data = evt.data;
 
-                    if(data.contains("{\"message\": panic}")) {
-                        System.out.println("Actor died x_x");
-                        self.die();
-                    }
-                    if(data != null && !data.isEmpty()){
-                        JSONBehaviour jsonBehaviour = new JSONBehaviour();
-                        ActorFactory.createActor("jsonHandler", jsonBehaviour);
-                        Supervisor.sendMessage("jsonHandler", data);
-                    }
+                // if data contains panic message then actor is self-killing
+                if(data.contains("{\"message\": panic}")) {
+                    System.out.println("Actor died x_x");
+                    self.die();
+                }
+                // if the data is available and readable then create new actor which will
+                // do next steps and will process the data from the stream
+                if(data != null && !data.isEmpty()){
+                    JSONBehaviour jsonBehaviour = new JSONBehaviour();
+                    ActorFactory.createActor("jsonHandler", jsonBehaviour);
+                    Supervisor.sendMessage("jsonHandler", data);
                 }
             });
             client.connect();
@@ -43,6 +47,7 @@ public class SSEClientBehaviour implements Behaviour<String> {
         return false;
     }
 
+    // if exception encountered then actor will die
     @Override
     public void onException(Actor<String> self, Exception exc) {
         exc.printStackTrace();
