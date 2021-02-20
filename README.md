@@ -11,6 +11,7 @@
 ## Table of contents
 
 * [Requirements](#requirements)
+* [Output example](#output-example)
 * [Explanation](#explanation)
 * [Actor class](#actor-class)
 * [Actor Factory](#actor-factory)
@@ -18,7 +19,6 @@
 * [Actor Scale](#actor-scale)
 * [Behaviour](#behaviour)
 * [Implementation](#implementation)
-* [Output example](#output-example)
 * [Technologies](#technologies)
 * [Status](#status)  
 
@@ -44,6 +44,9 @@ https://blog.envoyproxy.io/examining-load-balancing-algorithms-with-envoy-1be643
 * Have a metrics endpoint to monitor the stats on ingested messages, average execution time, 75th, 90th, 95th  
 percentile execution time, number of crashes per given time window, etc  
 * Anything else, like the most popular hashtag up until now, or maybe other analytics  
+
+## Output example 
+![alt-text](https://github.com/DivineBee/ActorProg1/blob/master/src/main/resources/lab1.gif?raw=true)
 
 ## Explanation  
 For this laboratory work I decided to make my own Actor system because of multiple reasons. First is that I  
@@ -309,8 +312,6 @@ return counter;
 Also for fun kind of I added a check to the score in the _getEmotionScore_ which through some if elses will output a  
 message depending on how good or bad the user score is, for example if the score is 0 - the user is neutral, if above  
 7 then he is very happy and so on.  
-
-## Output example 
 
 ## Technologies
 Java 11 and Maven for Jackson  
