@@ -65,7 +65,7 @@ public class EmotionHandler implements Behaviour<String> {
             if (startIndex != 0 && endingIndex != tweet.length()){
                 if (verifyWordBounds(tweet.charAt(startIndex - 1), tweet.charAt(endingIndex))){
                     reviewableFragment = tweet.substring(startIndex, endingIndex);
-                    System.out.println("HERE " + reviewableFragment + " | " + emotionWord);
+                    //System.out.println("HERE " + reviewableFragment + " | " + emotionWord);
                     if (reviewableFragment.equalsIgnoreCase(emotionWord)) {
                         counter++;
                     }
