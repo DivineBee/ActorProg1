@@ -14,7 +14,7 @@
 - [Table of contents](#table-of-contents)
 - [Requirements](#requirements)
 - [Output example](#output-example)
-- [Explanation](#explanation)
+- [Introduction](#introduction)
 - [Actor class](#actor-class)
 - [Actor Factory](#actor-factory)
 - [Supervisor](#supervisor)
@@ -50,8 +50,8 @@ percentile execution time, number of crashes per given time window, etc
 ## Output example 
 ![alt-text](https://github.com/DivineBee/ActorProg1/blob/master/src/main/resources/lab1.gif?raw=true)
 
-## Explanation  
-For this laboratory work I decided to make my own Actor system because of multiple reasons. First is that I wanted to better understand how they work and why, also to "feel" them. Second because I wanted to challenge myself and my programming skills, it turned out to be very interesting and fun. So I will describe first how I modeled my actor system and then how it was applied it to the laboratory work.
+## Introduction  
+For this laboratory work I decided to make my own Actor system because of multiple reasons. First is that I wanted to better understand how they work and why, also to "feel" them. Second because I wanted to challenge myself and my programming skills, it turned out to be very interesting and fun. So I will describe first how I modeled my actor system and then how it was applied to the laboratory work.
 
 ## Actor class
 
